@@ -11,7 +11,6 @@ import Foundation
 let APIKey = "d1cfead7efbe6a92d1028716a8e58464"
 let ENDPOINT = "https://api.flickr.com/services/rest/"
 
-let photoSearchKey = "Party"
 let errorTitle  = "Error service"
 let errorMessage = "We have a some problem!"
 let okay = "OK"

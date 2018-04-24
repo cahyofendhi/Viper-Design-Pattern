@@ -23,15 +23,19 @@ protocol PhotoViewControllerInput {
     func getTotalPhoneCount() -> NSInteger
 }
 
-class PhotoViewController: UIViewController, PhotoViewControllerInput {
+class PhotoViewController: UIViewController, UISearchBarDelegate, PhotoViewControllerInput {
     
     @IBOutlet weak var photoCollectionView: UICollectionView!
+    
+    @IBOutlet weak var searchBar: UISearchBar!
     
     var presenter: PhotoViewControllerOutput!
     
     var photos: [FlickrPhotoModel] = []
     var currentPage = 1
     var totalPages  = 1
+    
+    var searchText: String = "Flickr"
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -40,14 +44,40 @@ class PhotoViewController: UIViewController, PhotoViewControllerInput {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
-        self.title  = photoSearchKey
-        
+        self.updateTitle()
+    }
+    
+    func updateTitle() {
+        self.title  = self.searchText
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        performSearchWith(photoSearchKey)
+        self.searchBar.delegate = self
+        performSearchWith(self.searchText)
+    }
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+    }
+    
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        self.searchText = "Flickr"
+        self.updateTitle()
+        self.photos.removeAll()
+        self.photoCollectionView.reloadData()
+    }
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        self.searchText = searchBar.text!
+        self.updateTitle()
+        self.currentPage    = 1
+        self.performSearchWith(searchBar.text!)
+        searchBar.resignFirstResponder()
+    }
+    
+    // Hidden keyboard
+    @IBAction func tapToHideKeyboard(_ sender: Any) {
+        if(!self.searchBar.isHidden){self.searchBar.resignFirstResponder()}
     }
     
     func performSearchWith(_ searchText: String) {
@@ -55,6 +85,7 @@ class PhotoViewController: UIViewController, PhotoViewControllerInput {
     }
     
     func displayFetchedPhotos(_ photos: [FlickrPhotoModel], totalpages: NSInteger) {
+        if(self.currentPage == 1){self.photos.removeAll()}
         self.photos.append(contentsOf: photos)
         self.totalPages = totalpages
         
@@ -119,7 +150,7 @@ extension PhotoViewController: UICollectionViewDataSource {
             return photoItemCell(collectionView, cellForItemAt: indexPath as NSIndexPath)
         } else {
             currentPage += 1
-            performSearchWith(photoSearchKey)
+            performSearchWith(self.searchText)
             return loadingItemCell(collectionView, cellForItemAt: indexPath as NSIndexPath)
         }
     }

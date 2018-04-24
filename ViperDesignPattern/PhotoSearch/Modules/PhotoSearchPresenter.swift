@@ -19,7 +19,7 @@ class PhotoSearchPresenter: PhotoSearchPresenterInput {
     var router: PhotoSearchRouterInput!
     
     func fetchphotos(_ searchtag: String, page: NSInteger) {
-        if view.getTotalPhoneCount() == 0 {
+        if page == 1 {
             view.showWaitingView()
         }
         interactor.fetchAllPhotosFromDataManager(searchtag, page: page)

@@ -42,7 +42,11 @@ class FlickrDataManager: FlickrSearchPhotoProtocol, FlickrPhotoLoadImageProtocol
                     return
                 }
                 let photos = callback.photos
-                clousure(nil, Int((photos?.total)!)!, photos?.photo)
+                guard let total = Int((photos?.total)!) else {
+                    clousure(nil, 0, nil)
+                    return
+                }
+                clousure(nil, total, photos?.photo)
         }) { error in
             print("ERROR: \(error)")
             clousure(nil, 0, nil)
